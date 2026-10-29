@@ -49,8 +49,8 @@ if st.button("Analyze Sentiment"):
                     "score": None,
                     "theme": "Error"
                 })
-                print(f"Error analyzing review: {review}. Error: {dir(e)}")
-                st.error(f"Error analyzing review. Error: {dir(e.args)}")
+                print(f"Error analyzing review: {review}. Error: {str(e)}")
+                st.error(f"Error analyzing review. Error: {str(e)}")
                
         # save the results to a session state to persist them.    
         st.session_state.results = results
