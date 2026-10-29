@@ -1,0 +1,36 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from dotenv import load_dotenv
+from google.genai import types, Client
+
+load_dotenv()
+client = Client()
+
+app = FastAPI()
+
+# pydantic models
+class Review(BaseModel):
+    text: str
+
+class AnalysisResult(BaseModel):
+    label: str #postive, negative, neutral
+    score: float
+    theme: str
+
+# Root endpoint
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Sentiment Analysis API!"}
+
+@app.post("/analyze", response_model=AnalysisResult)
+def analyze_review(review: Review):
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=(
+            types.TextPrompt(
+                text=f"Analyze the following review and provide a sentiment label (positive, negative, neutral), a score between 0 and 5, and a theme for the review must be ONE lette word  for the main topic. e.g service, delivery, quality, price. \n" 
+                f"Here is the review: {review.text}"
+            ),
+        )
+    )
+    return response.parsed
