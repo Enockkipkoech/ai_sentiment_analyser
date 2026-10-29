@@ -19,7 +19,7 @@ class Review(BaseModel):
 
 class AnalysisResult(BaseModel):
     sentiment: str #postive, negative, neutral
-    score: float
+    score: int
     theme: str
 
 # Root endpoint
@@ -32,10 +32,14 @@ def analyze_review(review: Review):
     response = client.models.generate_content(
         model="gemini-3.8-flash",
         contents=(            
-                """
-                Analyze the following review and provide a sentiment label (positive, negative, neutral), a score between 0 and 5, and a theme for the review must be ONE lette word  for the main topic. e.g service, delivery, quality, price. \n
-                """ 
-                f"Here is the review: {review.text}"            
-        )
-    )
+                "Analyze the following review and provide a sentiment label (positive, negative, neutral).\n"
+                "Provide a score between 0 and 5. \n", 
+                "Theme for the review must be ONE lette word  for the main topic. e.g service, delivery, quality, price. \n"                
+                f"Here is the review: {review.text}"
+        ),
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=AnalysisResult,
+        ),
+    )    
     return response.parsed
